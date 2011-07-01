@@ -1,8 +1,8 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Kohana_Partial extends View {
+class Kohana_Partial extends Kohana_View {
 
-	// Name of view partial
+	// Filename of view partial
 	protected $_partial = '';
 
 	// Collection to be rendered in partial
@@ -22,22 +22,27 @@ class Kohana_Partial extends View {
 	 * @return  View
 	 * @throws  Kohana_View_Exception
 	 */
-	public static function partial($file = NULL, array $data = NULL)
+	public static function factory($file = NULL, array $data = NULL)
+	{
+		return new Partial($file, $data);
+	}
+
+	public function __construct($file = NULL, array $data = NULL)
 	{
 		if ($file === NULL)
 		{
-			throw new Kohana_View_Exception('You must specify a filename for partials');
+			throw new Kohana_View_Exception('You must specify a filename for the partial');
 		}
 
-		$this->_partial = basename($file);
+		$this->_partial = $file;
 
-		return new View(dirname($file).DIRECTORY_SEPARATOR.'_'.basename($file), $data);
+		return parent::__construct(dirname($file).DIRECTORY_SEPARATOR.'_'.basename($file), $data);
 	}
 
 	/**
 	 * Allows rendering a partial for each item in a provided collection.
 	 *
-	 *     $view = View::partial('products/_product')->collection($products);
+	 *     $partial = Partial::factory('products/_product')->collection($products);
 	 *
 	 * [!!] Collections must contain one or more items.
 	 *
@@ -66,7 +71,7 @@ class Kohana_Partial extends View {
 			foreach ($this->_collection as $item)
 			{
 				// Render the partial for each item and store it in output
-				$output .= $this->set($this->_partial, $item)->render();
+				$output .= Partial::factory($this->_partial, array(basename($this->_partial) => $item))->render();
 			}
 
 			return $output;
@@ -77,4 +82,4 @@ class Kohana_Partial extends View {
 		}
 	}
 
-} // End Kohana_Partial
+} // End Partial
