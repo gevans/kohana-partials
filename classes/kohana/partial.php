@@ -77,4 +77,4 @@ class Kohana_Partial extends View {
 		}
 	}
 
-}
+} // End Kohana_Partial
