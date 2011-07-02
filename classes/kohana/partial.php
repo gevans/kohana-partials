@@ -1,25 +1,32 @@
 <?php defined('SYSPATH') or die('No direct script access.');
-
+/**
+ * Similar to views, allows you to separate view logic into more manageable
+ * chunks. Like views, variables can be assigned with the partial object and
+ * referenced locally within partials.
+ *
+ * @package    Kohana
+ * @category   Partials
+ * @author     Gabriel Evans <gabriel@codeconcoction.com>
+ * @copyright  (c) 2011 Gabriel Evans
+ * @license    http://www.opensource.org/licenses/mit-license.php
+ */
 class Kohana_Partial extends Kohana_View {
 
-	// Filename of view partial
+	// Filename of partial
 	protected $_partial = '';
 
 	// Collection to be rendered in partial
 	protected $_collection = NULL;
 
 	/**
-	 * Prepends a specified partial's name with an underscore and returns a
-	 * View object.
+	 * Returns a new Partial object. You must define the "file" parameter.
+	 * The base filename will be prefixed with an underscore.
 	 *
-	 *     // Using:
-	 *     $view = View::partial('cart/items');
-	 *     // Becomes:
-	 *     $view = View::factory('cart/_items');
+	 *     $partial = Partial::factory($file);
 	 *
 	 * @param   string  view filename
 	 * @param   array   array of values
-	 * @return  View
+	 * @return  Partial
 	 * @throws  Kohana_View_Exception
 	 */
 	public static function factory($file = NULL, array $data = NULL)
@@ -27,7 +34,7 @@ class Kohana_Partial extends Kohana_View {
 		return new Partial($file, $data);
 	}
 
-	public function __construct($file = NULL, array $data = NULL)
+	protected function __construct($file = NULL, array $data = NULL)
 	{
 		if ($file === NULL)
 		{
@@ -41,8 +48,13 @@ class Kohana_Partial extends Kohana_View {
 
 	/**
 	 * Allows rendering a partial for each item in a provided collection.
+	 * This is the same as wrapping `Partial::factory()` in a `foreach`
+	 * and setting a variable for each item.
 	 *
-	 *     $partial = Partial::factory('products/_product')->collection($products);
+	 *     $partial = Partial::factory($file)->collection($collection);
+	 *
+	 * You can access the variable in your views by the base filename (e.g. if
+	 * your partial is named `item` the variable is `$item`).
 	 *
 	 * [!!] Collections must contain one or more items.
 	 *
