@@ -34,7 +34,7 @@ class Kohana_Partial extends Kohana_View {
 		return new Partial($file, $data);
 	}
 
-	protected function __construct($file = NULL, array $data = NULL)
+	public function __construct($file = NULL, array $data = NULL)
 	{
 		if ($file === NULL)
 		{
