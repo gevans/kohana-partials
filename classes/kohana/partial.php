@@ -62,11 +62,16 @@ class Kohana_Partial extends Kohana_View {
 	 * @return  $this
 	 * @throws  Kohana_View_Exception
 	 */
-	public function collection(array $collection = NULL)
+	public function collection($collection = NULL)
 	{
 		if (empty($collection))
 		{
 			throw new Kohana_View_Exception('A collection cannot be empty');
+		}
+		elseif ( ! is_array($collection) AND ! ($collection instanceof Iterator)
+			AND ! ($collection instanceof ArrayAccess))
+		{
+			throw new Kohana_View_Exception('A collection must be iteratable.');
 		}
 
 		$this->_collection = $collection;
