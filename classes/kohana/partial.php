@@ -12,11 +12,14 @@
  */
 class Kohana_Partial extends Kohana_View {
 
-	// Filename of partial
-	protected $_partial = '';
+	// Variable name of a single item when rendering a collection
+	protected $_collection_name = NULL;
 
 	// Collection to be rendered in partial
 	protected $_collection = NULL;
+
+	// Spacer to be rendered between items in a collection
+	protected $_spacer = NULL;
 
 	/**
 	 * Returns a new Partial object. You must define the "file" parameter.
@@ -36,14 +39,40 @@ class Kohana_Partial extends Kohana_View {
 
 	public function __construct($file = NULL, array $data = NULL)
 	{
-		if ($file === NULL)
+		if ($file !== NULL)
 		{
-			throw new Kohana_View_Exception('You must specify a filename for the partial');
+			$this->set_filename($file);
 		}
 
-		$this->_partial = $file;
+		if ($data !== NULL AND count($data) === 1 AND Arr::is_array($data[key($data)]))
+		{
+			$this->_collection_name = Inflector::singular(key($data));
+			$this->_collection      = $data[key($data)];
+		}
+		else
+		{
+			parent::__construct(NULL, $data);
+		}
+	}
 
-		return parent::__construct(dirname($file).DIRECTORY_SEPARATOR.'_'.basename($file), $data);
+	public function set_filename($file)
+	{
+		// Prepend an underscore to the filename of the view
+		return parent::set_filename(dirname($file).DIRECTORY_SEPARATOR.'_'.basename($file));
+	}
+
+	/**
+	 * Allows rendering a partial between each item in a collection.
+	 *
+	 * @param   string  partial filename
+	 * @return  $this
+	 * @throws  Kohana_View_Exception
+	 */
+	public function spacer($file)
+	{
+		$this->_spacer = (string) Partial::factory($file);
+
+		return $this;
 	}
 
 	/**
@@ -54,7 +83,7 @@ class Kohana_Partial extends Kohana_View {
 	 *     $partial = Partial::factory($file)->collection($collection);
 	 *
 	 * You can access the variable in your views by the base filename (e.g. if
-	 * your partial is named `item` the variable is `$item`).
+	 * your partial is named `product` the variable is `$product`).
 	 *
 	 * [!!] Collections must contain one or more items.
 	 *
@@ -64,39 +93,61 @@ class Kohana_Partial extends Kohana_View {
 	 */
 	public function collection($collection = NULL)
 	{
-		if (empty($collection))
-		{
-			throw new Kohana_View_Exception('A collection cannot be empty');
-		}
-		elseif ( ! is_array($collection) AND ! ($collection instanceof Iterator)
-			AND ! ($collection instanceof ArrayAccess))
+		if ( ! Arr::is_array($collection))
 		{
 			throw new Kohana_View_Exception('A collection must be iteratable.');
 		}
-
-		$this->_collection = $collection;
+		else
+		{
+			$this->_collection_name = substr(basename($this->_file, EXT), 1);
+			$this->_collection      = $collection;
+		}
 
 		return $this;
 	}
 
 	public function render($file = NULL)
 	{
-		if ($this->_collection !== NULL)
+		if ($file !== NULL)
+		{
+			$this->set_filename($file);
+		}
+
+		if (empty($this->_file))
+		{
+			throw new Kohana_View_Exception('You must set the file to use within your view before rendering');
+		}
+
+		if ($this->_collection_name !== NULL AND $this->_collection !== NULL)
 		{
 			$output = '';
 
+			$collection_count = count($this->_collection);
+
+			$i = 0;
+
 			foreach ($this->_collection as $item)
 			{
-				// Render the partial for each item and store it in output
-				$output .= Partial::factory($this->_partial, array(basename($this->_partial) => $item))->render();
+				$view_data = array(
+					$this->_collection_name            => $item,
+					$this->_collection_name.'_counter' => $i,
+				);
+
+				$output .= Partial::capture($this->_file, $view_data);
+
+				if ($i !== $collection_count AND $this->_spacer !== NULL)
+				{
+					// Capture the spacer
+					$output .= $this->_spacer;
+				}
+
+				$i++;
 			}
 
 			return $output;
 		}
-		else
-		{
-			return parent::render();
-		}
+
+		return parent::render();
 	}
 
 } // End Partial
