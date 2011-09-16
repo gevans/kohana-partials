@@ -133,7 +133,7 @@ class Kohana_Partial extends Kohana_View {
 					$this->_collection_name.'_counter' => $i,
 				);
 
-				$output .= Partial::capture($this->_file, $view_data);
+				$output .= Partial::capture($this->_file, Arr::merge($this->_data, $view_data));
 
 				if ($i !== $collection_count AND $this->_spacer !== NULL)
 				{
