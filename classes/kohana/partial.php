@@ -95,7 +95,7 @@ class Kohana_Partial extends Kohana_View {
 	{
 		if ( ! Arr::is_array($collection))
 		{
-			throw new Kohana_View_Exception('A collection must be iteratable.');
+			throw new Kohana_View_Exception('A collection must be iterable.');
 		}
 		else
 		{
