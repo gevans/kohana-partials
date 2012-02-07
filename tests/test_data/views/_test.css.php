@@ -1,0 +1,1 @@
+This is a partial with a dot in the filename.
