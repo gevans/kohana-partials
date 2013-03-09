@@ -15,8 +15,8 @@ A lot of the time, we have an array of objects we need to iterate through to dis
 ```php
 <?php foreach ($posts as $post): ?>
 <div>
-    <h3><?php echo $post->title; ?></h3>
-    <?php echo $post->content; ?>
+    <h3><?= $post->title ?></h3>
+    <?= $post->content ?>
 </div>
 <?php endforeach; ?>
 ```
@@ -24,15 +24,15 @@ A lot of the time, we have an array of objects we need to iterate through to dis
 Using partials, you can simplify your views a bit by using the `collection()` method:
 
 ```php
-<?php echo Partial::factory('posts/post')->collection($posts); ?>
+<?= Partial::factory('posts/post')->collection($posts); ?>
 ```
 
 This one-liner will render the partial named `posts/_post.php` for every item in `$posts`. Each item is accessible in your partial as a variable named after the partial. In this case, the variable is `$post`:
 
 ```php
 <div>
-    <h3><?php echo $post->title; ?></h3>
-    <?php echo $post->content; ?>
+    <h3><?= $post->title ?></h3>
+    <?= $post->content ?>
 </div>
 ```
 
